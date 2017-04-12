@@ -6,7 +6,7 @@ const fetch = proxyquire('../fetch', {
 
 describe('fetch', () => {
 	it('fetches', () => {
-		return fetch('https://www.ft.com').then(data => {
+		return fetch('https://www.teddy.com/status').then(data => {
 			expect(data).to.deep.equal({ foo: 'bar' });
 		});
 	});
