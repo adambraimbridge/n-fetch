@@ -1,15 +1,15 @@
-# fetch
+# n-fetch
 
 ### Installation
 
 ```sh
-npm install --save @financial-times/fetch
+npm install --save @financial-times/n-fetch
 ```
 
 ### Usage
 
 ```js
-const fetch = require('@financial-times/fetch');
+const fetch = require('@financial-times/n-fetch');
 
 fetch('https://api.fastly.com/public-ip-list')
 	.then((data) => {
