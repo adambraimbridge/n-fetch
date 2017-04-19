@@ -8,8 +8,7 @@
   "dependencies": {
     "@financial-times/n-logger": "^5.5.3",
     "fetch-ponyfill": "^4.0.0",
-    "http-errors": "^1.6.1",
-    "isomorphic-fetch": "^2.2.1"
+    "http-errors": "^1.6.1"
   },
   "devDependencies": {
     "@financial-times/next-secrets": "^1.1.0",
