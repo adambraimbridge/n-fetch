@@ -1,4 +1,4 @@
-const logger = require('@financial-times/n-logger');
+const logger = require('@financial-times/n-logger').default;
 const fetch = require('fetch-ponyfill')().fetch;
 const httpError = require('http-errors');
 
