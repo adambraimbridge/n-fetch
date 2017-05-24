@@ -6,7 +6,17 @@ module.exports = (input, init) => {
 	return fetch(input, init)
 		.then(response => {
 			if (response.ok) {
-				return response.json();
+				let contentType;
+				try {
+					contentType = response.headers.get('content-type');
+				}
+				catch (error) {
+					logger.warn(error);
+				}
+
+				return contentType && contentType.includes('json')
+					? response.json()
+					: response.text();
 			} else {
 				logger.warn({
 					event: 'N_FETCH_ERROR',
@@ -19,5 +29,8 @@ module.exports = (input, init) => {
 						throw httpError(response.status, text);
 					});
 			}
+		})
+		.catch(error => {
+			throw error;
 		});
 };

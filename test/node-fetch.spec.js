@@ -8,7 +8,10 @@ const fakedotcom = nock('http://www.fake.com')
 	.get('/text')
 	.reply(200, 'some text')
 	.get('/json')
-	.reply(200, {'some':'json'});
+	.reply(200,
+		{'some':'json'},
+		{'Content-Type': 'application/json'}
+	);
 
 describe('node-fetch', () => {
 	it('handles json responses', () => {

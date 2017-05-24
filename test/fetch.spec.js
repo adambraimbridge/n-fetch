@@ -17,7 +17,13 @@ describe('fetch', () => {
 		stub.logger.warn = sinon.stub();
 	});
 	it('fetches', () => {
-		stub.fetch.withArgs('https://www.teddy.com/status').returns(Promise.resolve({ ok: true, json: () => Promise.resolve({ foo: 'bar' }) }));
+		stub.fetch.withArgs('https://www.teddy.com/status').returns(Promise.resolve({
+			ok: true,
+			headers: {
+				get: () => 'application/json'
+			},
+			json: () => Promise.resolve({ foo: 'bar' })
+		}));
 		return fetch('https://www.teddy.com/status').then(data => {
 			expect(data).to.deep.equal({ foo: 'bar' });
 		});
