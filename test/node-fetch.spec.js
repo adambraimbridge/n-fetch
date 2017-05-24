@@ -4,7 +4,7 @@ const nock = require('nock');
 const proxyquire = require('proxyquire');
 const fetch = proxyquire('../fetch', {'@financial-times/n-logger': {}});
 
-const fakedotcom = nock('http://www.fake.com')
+nock('http://www.fake.com')
 	.get('/text')
 	.reply(200, 'some text')
 	.get('/json')
