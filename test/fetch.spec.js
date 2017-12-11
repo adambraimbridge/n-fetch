@@ -25,7 +25,7 @@ describe('fetch', () => {
 	it('fetches with an error', () => {
 		stub.fetch.withArgs('https://www.teddy.com/status').returns(Promise.resolve({ ok: false, status: 500, statusText: 'internal error', text: () => Promise.resolve('bad response') }));
 		return fetch('https://www.teddy.com/status')
-			.then(() => { throw new Error('it should throw an error') })
+			.then(() => { throw new Error('it should throw an error'); })
 			.catch(error => {
 				expect(stub.logger.warn).calledWith({ event: 'N_FETCH_ERROR', input: 'https://www.teddy.com/status', statusCode: 500, statusText: 'internal error' });
 				expect(error).to.exist
@@ -36,7 +36,7 @@ describe('fetch', () => {
 	it('error', () => {
 		stub.fetch.withArgs('https://www.teddy.com/status').returns(Promise.reject(new Error('bad code?')));
 		return fetch('https://www.teddy.com/status')
-			.then(() => { throw new Error('it should throw an error') })
+			.then(() => { throw new Error('it should throw an error'); })
 			.catch(error => {
 				expect(stub.logger.warn).not.called;
 				expect(error).to.exist
@@ -47,7 +47,7 @@ describe('fetch', () => {
 	it('strips out query in logging', () => {
 		stub.fetch.withArgs('https://www.teddy.com/status?id=1234&key=abc').returns(Promise.resolve({ ok: false, status: 500, statusText: 'internal error', text: () => Promise.resolve('bad response') }));
 		return fetch('https://www.teddy.com/status?id=1234&key=abc')
-			.then(() => { throw new Error('it should throw an error') })
+			.then(() => { throw new Error('it should throw an error'); })
 			.catch(error => {
 				expect(stub.logger.warn).calledWith({ event: 'N_FETCH_ERROR', input: 'https://www.teddy.com/status', statusCode: 500, statusText: 'internal error' });
 				expect(error).to.exist
