@@ -1,58 +1,88 @@
 const proxyquire = require('proxyquire');
+const nock = require('nock');
 const sinon = require('sinon');
-const chai = require('chai');
-const sinonChai = require('sinon-chai');
-const expect = chai.expect;
-chai.use(sinonChai);
+const { expect } = require('chai');
 
-const stub = { logger: {} };
+const sandbox = sinon.sandbox.create();
+
+const stubs = {
+	logger: {
+		warn: sandbox.stub()
+	}
+};
+
 const fetch = proxyquire('../fetch', {
-	'@financial-times/n-logger': { default: stub.logger },
-	'node-fetch': (url) => stub.fetch(url)
+	'@financial-times/n-logger': { default: stubs.logger }
 });
 
 describe('fetch', () => {
-	beforeEach(() => {
-		stub.fetch = sinon.stub();
-		stub.logger.warn = sinon.stub();
+	afterEach(() => {
+		nock.cleanAll();
+		sandbox.reset();
 	});
-	it('fetches', () => {
-		stub.fetch.withArgs('https://www.teddy.com/status').returns(Promise.resolve({ ok: true, json: () => Promise.resolve({ foo: 'bar' }) }));
-		return fetch('https://www.teddy.com/status').then(data => {
-			expect(data).to.deep.equal({ foo: 'bar' });
+
+	context('when the request succeeds', () => {
+		beforeEach(() => {
+			nock('https://www.teddy.com')
+				.get('/status')
+				.reply(200, { foo: 'bar' });
 		});
+
+		it('fetches and parses data', () => (
+			fetch('https://www.teddy.com/status').then((data) => {
+				expect(data).to.deep.equal({ foo: 'bar' });
+			})
+		));
 	});
-	it('fetches with an error', () => {
-		stub.fetch.withArgs('https://www.teddy.com/status').returns(Promise.resolve({ ok: false, status: 500, statusText: 'internal error', text: () => Promise.resolve('bad response') }));
-		return fetch('https://www.teddy.com/status')
-			.then(() => { throw new Error('it should throw an error'); })
-			.catch(error => {
-				expect(stub.logger.warn).calledWith({ event: 'N_FETCH_ERROR', input: 'https://www.teddy.com/status', statusCode: 500, statusText: 'internal error' });
-				expect(error).to.exist
-					.and.be.instanceof(Error)
-					.and.have.property('message', 'bad response');
-			});
-	});
-	it('error', () => {
-		stub.fetch.withArgs('https://www.teddy.com/status').returns(Promise.reject(new Error('bad code?')));
-		return fetch('https://www.teddy.com/status')
-			.then(() => { throw new Error('it should throw an error'); })
-			.catch(error => {
-				expect(stub.logger.warn).not.called;
-				expect(error).to.exist
-					.and.be.instanceof(Error)
-					.and.have.property('message', 'bad code?');
-			});
-	});
-	it('strips out query in logging', () => {
-		stub.fetch.withArgs('https://www.teddy.com/status?id=1234&key=abc').returns(Promise.resolve({ ok: false, status: 500, statusText: 'internal error', text: () => Promise.resolve('bad response') }));
-		return fetch('https://www.teddy.com/status?id=1234&key=abc')
-			.then(() => { throw new Error('it should throw an error'); })
-			.catch(error => {
-				expect(stub.logger.warn).calledWith({ event: 'N_FETCH_ERROR', input: 'https://www.teddy.com/status', statusCode: 500, statusText: 'internal error' });
-				expect(error).to.exist
-					.and.be.instanceof(Error)
-					.and.have.property('message', 'bad response');
-			});
+
+	context('when the request fails', () => {
+		beforeEach(() => {
+			nock('https://www.teddy.com')
+				.get('/status')
+				.query(true)
+				.reply(500, 'Oh dear!');
+		});
+
+		it('returns a HTTP error for a bad HTTP response', () => (
+			fetch('https://www.teddy.com/status')
+				.then(() => {
+					throw new Error('This should not be called');
+				})
+				.catch((error) => {
+					expect(error.name).to.equal('InternalServerError');
+					expect(error.message).to.equal('Oh dear!');
+				})
+		));
+
+		it('logs the bad request', () => (
+			fetch('https://www.teddy.com/status')
+				.then(() => {
+					throw new Error('This should not be called');
+				})
+				.catch(() => {
+					sinon.assert.calledWith(
+						stubs.logger.warn,
+						sinon.match({
+							event: 'N_FETCH_ERROR',
+							statusCode: 500
+						})
+					);
+				})
+		));
+
+		it('strips the request query string when logging the error', () => (
+			fetch('https://www.teddy.com/status?id=123&key=abc')
+				.then(() => {
+					throw new Error('This should not be called');
+				})
+				.catch(() => {
+					sinon.assert.calledWith(
+						stubs.logger.warn,
+						sinon.match({
+							input: 'https://www.teddy.com/status'
+						})
+					);
+				})
+		));
 	});
 });
