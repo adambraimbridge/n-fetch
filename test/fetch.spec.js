@@ -22,17 +22,25 @@ describe('fetch', () => {
 	});
 
 	context('when the request succeeds', () => {
-		beforeEach(() => {
+		it('fetches and parses JSON data', () => {
 			nock('https://www.teddy.com')
-				.get('/status')
+				.get('/status-json')
 				.reply(200, { foo: 'bar' });
+
+			return fetch('https://www.teddy.com/status-json').then((data) => {
+				expect(data).to.deep.equal({ foo: 'bar' });
+			});
 		});
 
-		it('fetches and parses data', () => (
-			fetch('https://www.teddy.com/status').then((data) => {
-				expect(data).to.deep.equal({ foo: 'bar' });
-			})
-		));
+		it('fetches and parses text', () => {
+			nock('https://www.teddy.com')
+				.get('/status-text')
+				.reply(200, 'foo=bar');
+
+			return fetch('https://www.teddy.com/status-text').then((data) => {
+				expect(data).to.deep.equal('foo=bar');
+			});
+		});
 	});
 
 	context('when the request fails', () => {

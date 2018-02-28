@@ -5,8 +5,14 @@ const httpError = require('http-errors');
 module.exports = (input, init) => {
 	return fetch(input, init)
 		.then(response => {
+			const contentType = response.headers.get('content-type');
+
 			if (response.ok) {
-				return response.json();
+				if (contentType && contentType.includes('application/json')) {
+					return response.json();
+				} else {
+					return response.text();
+				}
 			} else {
 				logger.warn({
 					event: 'N_FETCH_ERROR',
