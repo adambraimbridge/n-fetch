@@ -1,12 +1,18 @@
 const logger = require('@financial-times/n-logger').default;
-const fetch = require('node-fetch');
+const nodeFetch = require('node-fetch');
 const httpError = require('http-errors');
 
 module.exports = (input, init) => {
-	return fetch(input, init)
+	return (global.fetch || nodeFetch)(input, init)
 		.then(response => {
+			const contentType = response.headers.get('content-type');
+
 			if (response.ok) {
-				return response.json();
+				if (contentType && contentType.includes('application/json')) {
+					return response.json();
+				} else {
+					return response.text();
+				}
 			} else {
 				logger.warn({
 					event: 'N_FETCH_ERROR',
