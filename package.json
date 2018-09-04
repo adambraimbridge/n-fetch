@@ -11,7 +11,7 @@
     "node-fetch": "^1.6.3"
   },
   "devDependencies": {
-    "@financial-times/n-gage": "^1.8.3",
+    "@financial-times/n-gage": "^2.0.4",
     "@financial-times/next-secrets": "^1.1.0",
     "chai": "^4.1.0",
     "eslint": "^4.18.0",
