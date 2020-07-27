@@ -6,7 +6,6 @@ The fetch logic we wanted
 ## Requirements
 
 * Node 8.10.x
-* [Vault](https://github.com/Financial-Times/vault/wiki/Getting-Started-With-Vault)
 
 
 ## Installation
