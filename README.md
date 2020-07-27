@@ -20,7 +20,7 @@ make test
 
 ## Development
 
-### Installation
+### Install from NPM
 
 ```sh
 npm install --save @financial-times/n-fetch
@@ -39,3 +39,10 @@ fetch('https://api.fastly.com/public-ip-list')
 		console.log(error);
 	});
 ```
+
+### Documentation
+
+This library is a wrapper for [node-fetch](https://www.npmjs.com/package/node-fetch).
+It exports a single default method with the following arguments and returns a promise.
+- `input` - A string representing the URL for fetching
+- `init` - an object with the [request options](https://www.npmjs.com/package/node-fetch#options)
